@@ -1,0 +1,378 @@
+## week7 文件和数据格式化
+### 7.1 文件的使用
+### 7.2 实例11：自动轨迹绘制
+### 7.3 一维数据的格式化和处理
+### 7.4 二维数据的格式化和处理
+### 7.5 模块6：wordcloud库的使用
+### 7.6 实例12：政府工作报告词云
+
+### 7.1 文件的使用
+- 文件及其类型
+    - 文件是数据的抽象和集合
+        - 文件是存储在辅助存储器上的数据序列
+        - 文件是数据存储的一种形式
+        - 文件展现形态：文本文件和二进制文件
+            - 文本文件和二进制文件只是文件的展示方式
+            - 本质上，所有文件都是二进制形式存储
+            - 形式上，所有文件采用两种方式展示
+
+
+
+```python
+#文本及二进制形式打开文件
+tf=open('t.txt','rt',encoding = 'utf-8')
+print(tf.readline())
+tf.close
+
+tf=open('t.txt','rb')
+print(tf.readline())
+tf.close
+```
+
+    
+    b''
+    
+
+
+
+
+    <function BufferedReader.close>
+
+
+
+- 文件的打开及关闭
+    - 打开-操作-关闭
+    - 打开：
+    - `r`:只读模式，默认值，如果文件不存在，返回 FileNotFoundError
+    - `w`:覆盖写模式，文件不存在则创建，存在则完全覆盖
+    - `x`:创建写模式，文件不存在则创建，存在则返回 File Exists Error
+    - `a`:追加写模式，文件不存在则创建，存在则在文件最后追加内容
+    - `b`:二进制文件模式
+    - `t`:文本文件模式，默认值
+    - `+`:与r/w/x/a同使用，在原功能基础上增加同时读写功能
+- 文件内容的读取：
+    - `<f>.read(size=-1)`:读入全部内容，如果给出参数，就输入size长度
+    - `<f>.readline(size=-1)`：读入一行内容，读入该行的size长度
+    - `<f>.readlines(hint=-1)`：读入文件所有行，如给出参数，读入hint行 
+    - 遍历全文本（1）：一次读入，统一处理
+    - 遍历全文本（2）：分段读入，分段处理
+- 数据文件的写入：
+    - `<f>.write(s)`:向文件写入一个字符串或字节流
+    - `<f>.writelines(lines)`:将一个元素全为字符串的列表写入交件
+    - `<f>.seek(offset)`:改变当前文件操作指针位置的操作，0-文件开头；1-当前位置；2-文件结尾
+
+### 7.2 实例11：自动轨迹绘制
+- 需求:根据脚本绘制图型
+- 给出参数，绘制图像
+    - 定义数据文件格式（接口），一个个性化过程
+    - 编写程序，根据文件接口解析参数绘制图形
+    - 编制数据文件
+
+
+```python
+#AutoTraceDraw
+import turtle as t
+t.title('自动绘制轨迹')
+t.setup(800,600,0,0)
+t.pencolor('red')
+t.pensize(5)
+#数据类型
+datals=[]
+f=open('data.txt')
+for line in f:
+    line = line.replace('\n','')
+    datals.append(list(map(eval,line.split(',')))) #map函数可以将第一个函数的功能作用于第二个参数
+f.close
+#自动绘制
+for i in range(len(datals)):
+    t.pencolor(datals[i][3],datals[i][4],datals[i][5])
+    t.fd(datals[i][0])
+    if datals[i][1]:
+        t.right(datals[i][2])
+    else:
+        t.left(datals[i][2])
+    
+```
+
+- 方法思维：
+1. 自动化思维：数据和功能分离，数据驱动的自动运行
+2. 接口化设计：格式化接口设计，清洗明了
+3. 二维数据的应用：应用维度组织数据，二维数据最为常见
+- 应用扩展：
+1. 扩展接口设计，增加更多接口控制
+2. 扩展功能设计，增加弧形等更多功能
+3. 扩展应用需求，发展自动轨迹绘制到动画绘制
+
+### 7.3 一维数据的格式化和处理
+- 数据组织的维度
+    - 一个数据表达一个含义，一组数据表达一个或多个含义
+    - 一维数据：由对等关系的有序或无序数据构成，采用线性方式组织
+        - 对应列表、数组和集合等概念
+        - 二维数据：由多个一维数据构成，是一维数据的组合形式（表格是典型的二维数据）
+        - 多维数据：由一维或二维数据在新维度上扩展而成
+        - 高维数据：仅利用最基本的二元关系展示数据间的复杂结构
+    - 数据操作周期：存储-表示-操作
+- 一维数据的表示:
+    - 如果数据间有序：使用列表类型
+        - 列表类型可以表达一维有序数据
+        - for循环可以遍历数据，进而对每个数据进行处理
+    - 如果数据间无序：使用集合类型
+        - 集合类型可以表达一维无序数据
+        - for循环可以遍历数据，进而对每个数据进行处理
+- 一维数据的存储：
+    - 方式一：空格分隔，使用一个或多个空格分隔并进行存储，不换行；但要求数据中不能由空格
+    - 方式二：逗号分隔，不换行，同样要求数据中不能由逗号
+    - 方式三：其他符号分隔，缺点一样要求不能有分隔符号在文本中
+- 一维数据的处理：
+    - 如何将数据读入程序以及将程序表示的数据写入到文件中
+
+
+```python
+#读入
+txt = open('t.txt',encoding='utf-8')
+tf=txt.read()
+ls = tf.split()
+print(ls)
+txt.close
+#写入
+f = open('test.txt','w',encoding='utf-8')
+f.write(' '.join(ls))
+f.close()
+print(ls)
+```
+
+    []
+    []
+    
+
+### 7.4 二维数据的格式化和处理
+- 一般使用二维列表表达二维数据
+- 使用两层for循环遍历每个元素
+    - 外层和内层分别遍历行和列
+- csv格式与二维数据存储
+    - CSV：comma-separated values(用逗号分隔的值)
+    - 每一个一维数据，采用逗号分隔，无空行
+    - Excel可以打开保存CSV文件
+    - 如果某个元素缺失，逗号仍需保留
+    - 二维数据表头可以作为数据储存，也可以另行存储
+    - 逗号为英文半角逗号，逗号与数据之间没有额外空行
+    - 数据包含逗号，则在数据中的逗号加引号或者转义符
+    - 一般索引习惯，ls\[row]\[column],先行后列
+- 二维数据的处理:
+    - 从csv格式文件读入数据
+    - 将数据写入csv
+    - 逐一遍历数据
+
+
+```python
+#从csv文件中读入数据
+fo = open(fname)
+ls=[]
+for line in fo:
+    line = line.replace('\n','')
+    ls.append(line.split(','))
+fo.close
+
+#将数据写入csv数据
+ls=[[],[],[]]#二维列表
+f=open(fname,'w')
+for item in ls:
+    f.write(','.join(item)+'\n')
+f.close
+
+#二维数据的逐一处理
+ls=[[1,2],[3,4],[5,6]]
+for row in ls:
+    for column in row:
+        print(column)
+```
+
+### 7.5 模块6：wordcloud库的使用
+- wordcloud库把词云当作一个WordCloud对象
+- wordcloud.WordCloud()代表一个文本对应的词云
+- 可以根据文本中词语出现的频率等参数绘制词云
+- 绘制词云的形状、尺寸和颜色都可以设定
+- wordcloud常规方法
+- w=wordcloud.WordCloud()
+    - w.generate(txt):向WordCloud对象w中加载文本txt
+    - w.to_file(filename):将词云输出为图像文件，.png或.jpg格式
+- w=wordcloud.WordCloud(<参数>)
+    - width:指定词云对象生成图片的宽度，默认400像素
+    - height:指定词云对象生成图片的高度，默认200像素
+    - min_font_size:指定词云中字体最小字号，默认4号
+    - max_font_size:指定词云中字体最大字号，根据高度自动调节
+    - font_step:指定词云中字体字号的步进间隔，默认为1
+    - font_path:指定字体文件路径，默认None
+    - max_words:指定词云显示最大单词数，默认200
+    - stop_words:指定词云的排除词列表，即不显示的单词列表
+    - mask:指定词云形状，默认为长方形，需要引用imread()函数
+    - background_color:指定词云图片的背景颜色，默认为黑色
+- 散步绘词云：
+    - 1. 配置对象参数
+    - 2. 加载词云文本
+    - 3. 输出词云文件
+
+
+```python
+#wordcloud库常规方法
+import wordcloud
+import matplotlib as plt
+%matplotlib inline
+
+c=wordcloud.WordCloud(width=500,height=200)
+c.generate('wordcloud by python')
+c.to_file('pywordcloud.png')
+```
+
+
+
+
+    <wordcloud.wordcloud.WordCloud at 0x120d50c7fa0>
+
+
+
+
+```python
+import wordcloud
+txt='life is short, you need python'
+w=wordcloud.WordCloud(background_color='white')
+w.generate(txt)
+w.to_file('pywcloud.png')
+```
+
+
+
+
+    <wordcloud.wordcloud.WordCloud at 0x120d3f8a5b0>
+
+
+
+### 7.6 实例12：政府工作报告词云
+- 步骤1：读取文件、分词整理
+- 步骤2：设置并输出词云
+- 步骤3：观察结果，优化迭代
+
+
+
+```python
+#GovRptWordCLoudv1
+import jieba
+import wordcloud
+f= open('小康.txt','r',encoding='utf-8')
+t=f.read()
+f.close
+ls=jieba.lcut(t)
+txt=' '.join(ls)
+w=wordcloud.WordCloud(font_path='C:\\$Recycle.Bin\\S-1-5-21-956881968-3683699883-3077907830-500\\$R3UWT13\\Updates\\Download\\PackageFiles\\F48252D1-E2D1-4E3D-A011-C1A468BFE8F4\\root\\vfs\\Fonts\\private\\MSYH.TTC',width=1000,height=700,background_color='black',max_words=15)
+w.generate(txt)
+w.to_file('建成小康.png')
+```
+
+    Building prefix dict from the default dictionary ...
+    Loading model from cache C:\Users\ADMINI~1\AppData\Local\Temp\jieba.cache
+    Loading model cost 0.598 seconds.
+    Prefix dict has been built successfully.
+    
+
+
+
+
+    <wordcloud.wordcloud.WordCloud at 0x2e93e8363a0>
+
+
+
+
+```python
+#GovRptWordCLoudv2
+import jieba
+import wordcloud
+import imageio
+mask=imageio.imread('中国地图.jpeg')
+f= open('小康.txt','r',encoding='utf-8')
+t=f.read()
+f.close
+ls=jieba.lcut(t)
+txt=' '.join(ls)
+w=wordcloud.WordCloud(font_path='C:\\$Recycle.Bin\\S-1-5-21-956881968-3683699883-3077907830-500\\$R3UWT13\\Updates\\Download\\PackageFiles\\F48252D1-E2D1-4E3D-A011-C1A468BFE8F4\\root\\vfs\\Fonts\\private\\MSYH.TTC',width=1000,height=700,background_color='white',max_words=150,mask=mask)
+w.generate(txt)
+w.to_file('建成小康.png')
+```
+
+
+
+
+    <wordcloud.wordcloud.WordCloud at 0x2e95b296e50>
+
+
+
+
+### 文本的平均数
+打印输出附件文件的平均列数，计算方法如下：‪‬‪‬‪‬‪‬‪‬‮‬‪‬‮‬‪‬‪‬‪‬‪‬‪‬‮‬‫‬‪‬‪‬‪‬‪‬‪‬‪‬‮‬‪‬‪‬‪‬‪‬‪‬‪‬‪‬‮‬‫‬‭‬‪‬‪‬‪‬‪‬‪‬‮‬‫‬‫‬‪‬‪‬‪‬‪‬‪‬‮‬‭‬‪‬
+
+（1）有效行指包含至少一个字符的行，不计算空行；‪‬‪‬‪‬‪‬‪‬‮‬‪‬‮‬‪‬‪‬‪‬‪‬‪‬‮‬‫‬‪‬‪‬‪‬‪‬‪‬‪‬‮‬‪‬‪‬‪‬‪‬‪‬‪‬‪‬‮‬‫‬‭‬‪‬‪‬‪‬‪‬‪‬‮‬‫‬‫‬‪‬‪‬‪‬‪‬‪‬‮‬‭‬‪‬
+
+（2）每行的列数为其有效字符数；‪‬‪‬‪‬‪‬‪‬‮‬‪‬‮‬‪‬‪‬‪‬‪‬‪‬‮‬‫‬‪‬‪‬‪‬‪‬‪‬‪‬‮‬‪‬‪‬‪‬‪‬‪‬‪‬‪‬‮‬‫‬‭‬‪‬‪‬‪‬‪‬‪‬‮‬‫‬‫‬‪‬‪‬‪‬‪‬‪‬‮‬‭‬‪‬
+
+（3）平均列数为有效行的列数平均值，采用四舍五入方式取整数进位。
+
+
+```python
+with open('latex.log', 'r', encoding='utf-8') as f:
+    row_cnt=0
+    char_cnt=[]
+    for line in f:
+        line = line.strip('\n')
+        if line == '':
+            continue
+        char_cnt.append(len(line))
+        row_cnt+=1
+    f.close()
+    print(round(sum(char_cnt)/row_cnt))
+```
+
+    48
+    
+
+### CSV格式清洗与转换
+描述
+附件是一个CSV格式文件，提取数据进行如下格式转换：‪‬‪‬‪‬‪‬‪‬‮‬‪‬‮‬‪‬‪‬‪‬‪‬‪‬‮‬‫‬‪‬‪‬‪‬‪‬‪‬‪‬‮‬‪‬‪‬‪‬‪‬‪‬‪‬‪‬‮‬‫‬‭‬‪‬‪‬‪‬‪‬‪‬‮‬‫‬‫‬‪‬‪‬‪‬‪‬‪‬‮‬‭‬‪‬
+
+（1）按行进行倒序排列；‪‬‪‬‪‬‪‬‪‬‮‬‪‬‮‬‪‬‪‬‪‬‪‬‪‬‮‬‫‬‪‬‪‬‪‬‪‬‪‬‪‬‮‬‪‬‪‬‪‬‪‬‪‬‪‬‪‬‮‬‫‬‭‬‪‬‪‬‪‬‪‬‪‬‮‬‫‬‫‬‪‬‪‬‪‬‪‬‪‬‮‬‭‬‪‬
+
+（2）每行数据倒序排列；‪‬‪‬‪‬‪‬‪‬‮‬‪‬‮‬‪‬‪‬‪‬‪‬‪‬‮‬‫‬‪‬‪‬‪‬‪‬‪‬‪‬‮‬‪‬‪‬‪‬‪‬‪‬‪‬‪‬‮‬‫‬‭‬‪‬‪‬‪‬‪‬‪‬‮‬‫‬‫‬‪‬‪‬‪‬‪‬‪‬‮‬‭‬‪‬
+
+（3）使用分号（;）代替逗号（,）分割数据，无空格；‪‬‪‬‪‬‪‬‪‬‮‬‪‬‮‬‪‬‪‬‪‬‪‬‪‬‮‬‫‬‪‬‪‬‪‬‪‬‪‬‪‬‮‬‪‬‪‬‪‬‪‬‪‬‪‬‪‬‮‬‫‬‭‬‪‬‪‬‪‬‪‬‪‬‮
+
+
+```python
+with open('data.csv', 'r', encoding='utf-8') as f:
+    lines=f.readlines()
+    lines.reverse()
+    
+    for line in lines:
+        line = line.replace('\n','')
+        line=line.replace(' ','')
+        t=line.split(',')
+        t.reverse()
+        print(';'.join(t))
+```
+
+    3;8;6;1;7;4;2;5
+    'k';'j';'i';'c';'z';'x';'b';'y';'a'
+    'x';'y';'j';'i';'k';'a';'b';'c';'z'
+    'x';'a';'z';'y';'i';'c';'j';'b';'k'
+    'k';'j';'i';'z';'y';'x';'c';'b';'a'
+    2;4;7;5;8;3;1;6
+    5;6;4;1;7;2;3;8
+    7;6;5;4;3;2;1
+    
+
+
+```python
+
+```
+
+
+```python
+
+```
